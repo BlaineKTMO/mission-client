@@ -36,7 +36,7 @@ RUN . /opt/ros/$ROS_DISTRO/setup.sh && \
     colcon build
 
 # Source the workspace setup file
-RUN echo "source /opt/$ROS_DISTRO/setup.bash" >> ~/.bashrc
+RUN echo "source /opt/ros/$ROS_DISTRO/setup.bash" >> ~/.bashrc
 RUN echo "source $WORKSPACE/install/setup.bash" >> ~/.bashrc
 
 # Set the entrypoint to the bash shell
