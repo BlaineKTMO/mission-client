@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
+from rclpy.action.client import ClientGoalHandle
 
 from std_msgs.msg import String
 from mission_msgs.action import Mission
@@ -30,11 +31,32 @@ class RN1(Node):
         goal_msg.distance = response["Distance"]
 
         self._mission_client.wait_for_server()
-        self._mission_client.send_goal_async(goal_msg)
+        self._mission_client.send_goal_async(goal_msg, feedback_callback=self.goal_feedback_callback) \
+                                                       .add_done_callback(self.goal_response_callback)
 
         self.get_logger().info("Sent goal")
 
-    
+    def goal_feedback_callback(self, feedback_msg):
+        feedback = feedback_msg.feedback
+        self.get_logger().info(f"Distance to goal: {feedback.distance_to_goal}")
+
+    def goal_response_callback(self, future):
+        self.goal_handle_ : ClientGoalHandle = future.result()
+ 
+        # Goal rejected
+        if not self.goal_handle_.accepted:
+            self.get_logger().info("Goal Rejected")
+            return
+
+        self.get_logger().info("Goal Accepted")
+
+        self.goal_handle_.get_result_async().add_done_callback(self.goal_done_callback)
+
+    def goal_done_callback(self, future):
+        result = future.result().result
+
+        self.get_logger().info(f"Goal Reached: {result.finished}")
+
 
 
 def main(args=None):
