@@ -1,8 +1,10 @@
 # Goal
 string	waypoint
+string	zone
+int32	distance
 ---
 # Response
 bool	finished
 ---
 # Feedback
-int32	test
+int32	distance_to_goal
