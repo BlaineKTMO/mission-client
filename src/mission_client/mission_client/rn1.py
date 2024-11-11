@@ -42,6 +42,9 @@ class RN1(Node):
 
     def goal_feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
+
+        response = requests.post("http://127.0.0.1:5000/api/mission_result", json={"result": False}) 
+
         self.get_logger().info(f"Distance to goal: {feedback.distance_to_goal}")
 
     def goal_response_callback(self, future):
