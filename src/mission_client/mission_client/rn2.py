@@ -1,3 +1,5 @@
+import time
+
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionServer
@@ -18,6 +20,20 @@ class RN2(Node):
     def execute_callback(self, goal_handle):
         self.get_logger().info("Recieved Goal")
         self.get_logger().info(f"Waypoint: {goal_handle.request.waypoint}")
+        self.get_logger().info(f"Zone: {goal_handle.request.zone}")
+        self.get_logger().info(f"Distance: {goal_handle.request.distance}")
+
+        feedback_msg = Mission.Feedback()
+        distance = goal_handle.request.distance
+
+        for i in range(goal_handle.request.distance):
+            feedback_msg.distance_to_goal = distance
+
+            goal_handle.publish_feedback(feedback_msg)
+            distance = distance - 1
+            
+            self.get_logger().info(f"Distance Remaining: {distance}")
+            time.sleep(1)
 
         goal_handle.succeed()
 

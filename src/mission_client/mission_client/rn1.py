@@ -26,11 +26,15 @@ class RN1(Node):
 
         goal_msg = Mission.Goal()
         goal_msg.waypoint = response['Waypoint']
+        goal_msg.zone = response["Zone"]
+        goal_msg.distance = response["Distance"]
 
         self._mission_client.wait_for_server()
         self._mission_client.send_goal_async(goal_msg)
 
         self.get_logger().info("Sent goal")
+
+    
 
 
 def main(args=None):
