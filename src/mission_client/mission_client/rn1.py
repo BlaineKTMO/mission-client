@@ -13,14 +13,13 @@ class RN1(Node):
         self.timer_period = 1
         self.timer = self.create_timer(self.timer_period, self.timer_callback)
 
-
     def timer_callback(self):
-        response = requests.get('http://127.0.0.1:5000/api/mission')
+        response = requests.get('http://127.0.0.1:5000/api/mission').json()
 
         self.get_logger().info("Recieved json data")
 
         msg = String()
-        msg.data = response
+        msg.data = response["Waypoint"]
 
 
 def main(args=None):
