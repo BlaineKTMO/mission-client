@@ -3,6 +3,6 @@ string	waypoint
 ---
 # Response
 bool	finished
-___
+---
 # Feedback
-
+int32	test
