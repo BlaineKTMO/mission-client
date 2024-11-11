@@ -1,0 +1,8 @@
+# Goal
+string	waypoint
+---
+# Response
+bool	finished
+___
+# Feedback
+
