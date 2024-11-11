@@ -21,6 +21,7 @@ setup(
     entry_points={
         'console_scripts': [
             "rn1 = mission_client.rn1:main",
+            "rn2 = mission_client.rn2:main",
         ],
     },
 )
