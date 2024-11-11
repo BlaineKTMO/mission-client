@@ -14,14 +14,23 @@ class RN1(Node):
         self.string_pub = self.create_publisher(String, 'mission', 10)
         self.timer_period = 1
         self.timer = self.create_timer(self.timer_period, self.timer_callback)
+        self._mission_client = ActionClient(self, Mission, 'mission')
 
     def timer_callback(self):
         response = requests.get('http://127.0.0.1:5000/api/mission').json()
 
         self.get_logger().info("Recieved json data")
 
-        msg = String()
-        msg.data = response["Waypoint"]
+        #msg = String()
+        #msg.data = response["Waypoint"]
+
+        goal_msg = Mission.Goal()
+        goal_msg.waypoint = response['Waypoint']
+
+        self._mission_client.wait_for_server()
+        self._mission_client.send_goal_async(goal_msg)
+
+        self.get_logger().info("Sent goal")
 
 
 def main(args=None):
