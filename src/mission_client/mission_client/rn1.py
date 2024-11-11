@@ -5,6 +5,7 @@ from rclpy.action.client import ClientGoalHandle
 
 from std_msgs.msg import String
 from mission_msgs.action import Mission
+from action_msgs.msg import GoalStatusArray
 
 import requests
 
@@ -12,29 +13,33 @@ import requests
 class RN1(Node):
     def __init__(self):
         super().__init__('rn1')
-        self.string_pub = self.create_publisher(String, 'mission', 10)
         self.timer_period = 1
         self.timer = self.create_timer(self.timer_period, self.timer_callback)
         self._mission_client = ActionClient(self, Mission, 'mission')
+        self.mission_client_status = 0
 
     def timer_callback(self):
-        response = requests.get('http://127.0.0.1:5000/api/mission').json()
+        if self.mission_client_status == 0:
+            response = requests.get('http://127.0.0.1:5000/api/mission').json()
 
-        self.get_logger().info("Recieved json data")
+            self.get_logger().info("Recieved json data")
 
-        #msg = String()
-        #msg.data = response["Waypoint"]
+            #msg = String()
+            #msg.data = response["Waypoint"]
 
-        goal_msg = Mission.Goal()
-        goal_msg.waypoint = response['Waypoint']
-        goal_msg.zone = response["Zone"]
-        goal_msg.distance = response["Distance"]
+            goal_msg = Mission.Goal()
+            goal_msg.waypoint = response['Waypoint']
+            goal_msg.zone = response["Zone"]
+            goal_msg.distance = response["Distance"]
 
-        self._mission_client.wait_for_server()
-        self._mission_client.send_goal_async(goal_msg, feedback_callback=self.goal_feedback_callback) \
-                                                       .add_done_callback(self.goal_response_callback)
+            self._mission_client.wait_for_server()
+            self._mission_client.send_goal_async(goal_msg, feedback_callback=self.goal_feedback_callback) \
+                                                           .add_done_callback(self.goal_response_callback)
 
-        self.get_logger().info("Sent goal")
+            self.get_logger().info("Sent goal")
+            self.mission_client_status = 1
+        else:
+            self.get_logger().info("Currently running...")
 
     def goal_feedback_callback(self, feedback_msg):
         feedback = feedback_msg.feedback
@@ -54,9 +59,8 @@ class RN1(Node):
 
     def goal_done_callback(self, future):
         result = future.result().result
-
+        self.mission_client_status = 0
         self.get_logger().info(f"Goal Reached: {result.finished}")
-
 
 
 def main(args=None):
