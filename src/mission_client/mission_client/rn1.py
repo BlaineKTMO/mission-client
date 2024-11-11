@@ -9,7 +9,6 @@ from action_msgs.msg import GoalStatusArray
 
 import requests
 
-
 class RN1(Node):
     def __init__(self):
         super().__init__('rn1')
@@ -60,6 +59,10 @@ class RN1(Node):
     def goal_done_callback(self, future):
         result = future.result().result
         self.mission_client_status = 0
+
+        if result.finished:
+            response = requests.post("http://127.0.0.1:5000/api/mission_result", json={"result": True}) 
+
         self.get_logger().info(f"Goal Reached: {result.finished}")
 
 
